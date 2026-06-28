@@ -1,0 +1,31 @@
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+backend/venv/
+.venv/
+
+# Database & Vector Indices
+*.db
+*.sqlite3
+backend/company_data/chroma_db*/
+
+# Node
+node_modules/
+frontend/node_modules/
+frontend/dist/
+dist/
+
+# OS / IDE
+.DS_Store
+.vscode/
+.idea/
+
+# Logs & temp
+*.log
