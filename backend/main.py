@@ -15,16 +15,14 @@ app = FastAPI(
 )
 
 # Parse CORS origins from settings
-allowed_origins = [
-    origin.strip()
-    for origin in settings.FRONTEND_URL.split(",")
-    if origin.strip()
-]
+raw_origins = settings.FRONTEND_URL.split(",")
+allowed_origins = [origin.strip() for origin in raw_origins if origin.strip()]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins if allowed_origins else ["*"],
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_origin_regex=r"https://.*\.vercel\.app|http://.*",
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
