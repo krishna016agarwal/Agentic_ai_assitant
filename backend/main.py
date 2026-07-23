@@ -1,7 +1,8 @@
 from dotenv import load_dotenv
 load_dotenv()
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, Response
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 from api.chat import router as chat_router
@@ -14,14 +15,29 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Parse CORS origins from settings
-raw_origins = settings.FRONTEND_URL.split(",")
-allowed_origins = [origin.strip() for origin in raw_origins if origin.strip()]
+# Custom CORS middleware to guarantee headers on all responses, preflights & errors
+@app.middleware("http")
+async def cors_middleware(request: Request, call_next):
+    if request.method == "OPTIONS":
+        response = Response(status_code=200)
+    else:
+        try:
+            response = await call_next(request)
+        except Exception as exc:
+            print(f"[Unhandled Server Error]: {exc}")
+            response = JSONResponse(
+                status_code=500,
+                content={"detail": str(exc)}
+            )
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "*"
+    response.headers["Access-Control-Allow-Headers"] = "*"
+    return response
+
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_origin_regex=r"https://.*\.vercel\.app|http://.*",
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
