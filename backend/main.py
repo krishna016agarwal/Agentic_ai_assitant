@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from api.chat import router as chat_router
 from api.voice import router as voice_router
+from config.settings import settings
 
 
 app = FastAPI(
@@ -13,9 +14,16 @@ app = FastAPI(
     version="1.0.0"
 )
 
+# Parse CORS origins from settings
+allowed_origins = [
+    origin.strip()
+    for origin in settings.FRONTEND_URL.split(",")
+    if origin.strip()
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins if allowed_origins else ["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -15,7 +15,7 @@ class Settings(BaseSettings):
 
     DATABASE_URL: str
 
-    UPLOAD_DIR: str
+    FRONTEND_URL: str = "http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000"
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -23,4 +23,4 @@ class Settings(BaseSettings):
     )
 
 
-settings = Settings()
+settings = Settings()
