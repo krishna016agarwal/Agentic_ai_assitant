@@ -145,7 +145,35 @@ async def entrypoint(ctx: JobContext):
     )
 
 
+import threading
+from http.server import HTTPServer, BaseHTTPRequestHandler
+
+
+class HealthCheckHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header("Content-type", "text/plain")
+        self.end_headers()
+        self.wfile.write(b"OK")
+
+    def log_message(self, format, *args):
+        return
+
+
+def start_health_check_server():
+    port = os.getenv("PORT")
+    if port:
+        try:
+            server = HTTPServer(("0.0.0.0", int(port)), HealthCheckHandler)
+            thread = threading.Thread(target=server.serve_forever, daemon=True)
+            thread.start()
+            print(f"[HealthCheck] Bound health check HTTP server to port {port}")
+        except Exception as e:
+            print(f"[HealthCheck] Could not bind health check server: {e}")
+
+
 if __name__ == "__main__":
+    start_health_check_server()
     cli.run_app(
         WorkerOptions(entrypoint_fnc=entrypoint)
     )
