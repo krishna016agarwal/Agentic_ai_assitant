@@ -2,6 +2,12 @@ import os
 import sys
 from pathlib import Path
 
+# Limit thread pool allocations to prevent OOM on 512MB RAM instances
+os.environ["ONNX_NUM_THREADS"] = "1"
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
+os.environ["OPENBLAS_NUM_THREADS"] = "1"
+
 # Ensure the backend root is on the Python path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
@@ -175,5 +181,12 @@ def start_health_check_server():
 if __name__ == "__main__":
     start_health_check_server()
     cli.run_app(
-        WorkerOptions(entrypoint_fnc=entrypoint)
+        WorkerOptions(
+            entrypoint_fnc=entrypoint,
+            plugins=[
+                silero.Plugin(),
+                deepgram.Plugin(),
+                groq_plugin.Plugin(),
+            ],
+        )
     )
